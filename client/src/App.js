@@ -5,6 +5,7 @@ import RegisterPage from './pages/RegisterPage';
 import KanbanPage from './pages/KanbanPage';
 import BacklogPage from './pages/BacklogPage';
 import SprintsPage from './pages/SprintsPage';
+import ProjectsPage from './pages/ProjectsPage';
 import PrivateRoute from './components/PrivateRoute';
 import Navbar from './components/Navbar';
 
@@ -16,10 +17,10 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/" element={<PrivateRoute />}>
-          <Route path="/" element={<SprintsPage />} /> {/* Default to sprints page */}
-          <Route path="/sprints/:sprintId/board" element={<KanbanPage />} />
-          <Route path="/backlog" element={<BacklogPage />} />
-          <Route path="/sprints" element={<SprintsPage />} />
+          <Route path="/" element={<ProjectsPage />} />
+          <Route path="/projects/:projectId/sprints" element={<SprintsPage />} />
+          <Route path="/projects/:projectId/backlog" element={<BacklogPage />} />
+          <Route path="/projects/:projectId/sprints/:sprintId/board" element={<KanbanPage />} />
         </Route>
       </Routes>
     </div>

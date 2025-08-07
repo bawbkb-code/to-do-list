@@ -2,6 +2,7 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 const User = require('./User');
 const Sprint = require('./Sprint');
+const Project = require('./Project');
 
 const Task = sequelize.define('Task', {
   content: {
@@ -23,5 +24,8 @@ Task.belongsTo(Sprint, {
   foreignKey: 'SprintId',
   allowNull: true,
 });
+
+Project.hasMany(Task);
+Task.belongsTo(Project);
 
 module.exports = Task;

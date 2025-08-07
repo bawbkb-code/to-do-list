@@ -1,12 +1,13 @@
 const Task = require('../models/Task');
 
 // @desc    Create a new task
-// @route   POST /api/tasks
+// @route   POST /api/projects/:projectId/tasks
 // @access  Private
 exports.createTask = async (req, res) => {
     try {
         const { content, status, SprintId } = req.body;
-        const userId = req.user.id; // This will come from the auth middleware
+        const { projectId } = req.params;
+        const userId = req.user.id;
 
         if (!content) {
             return res.status(400).json({ message: 'Content is required' });
@@ -16,7 +17,8 @@ exports.createTask = async (req, res) => {
             content,
             status,
             UserId: userId,
-            SprintId
+            SprintId,
+            ProjectId: projectId,
         });
 
         res.status(201).json(task);
@@ -25,13 +27,13 @@ exports.createTask = async (req, res) => {
     }
 };
 
-// @desc    Get all tasks for a user
-// @route   GET /api/tasks
+// @desc    Get all tasks for a project
+// @route   GET /api/projects/:projectId/tasks
 // @access  Private
 exports.getAllTasks = async (req, res) => {
     try {
-        const userId = req.user.id;
-        const whereClause = { UserId: userId };
+        const { projectId } = req.params;
+        const whereClause = { ProjectId: projectId };
 
         if (req.query.sprintId) {
             whereClause.SprintId = req.query.sprintId;
@@ -45,13 +47,12 @@ exports.getAllTasks = async (req, res) => {
 };
 
 // @desc    Get a single task
-// @route   GET /api/tasks/:id
+// @route   GET /api/projects/:projectId/tasks/:id
 // @access  Private
 exports.getTaskById = async (req, res) => {
     try {
-        const { id } = req.params;
-        const userId = req.user.id;
-        const task = await Task.findOne({ where: { id, UserId: userId } });
+        const { id, projectId } = req.params;
+        const task = await Task.findOne({ where: { id, ProjectId: projectId } });
 
         if (!task) {
             return res.status(404).json({ message: 'Task not found' });
@@ -64,15 +65,14 @@ exports.getTaskById = async (req, res) => {
 };
 
 // @desc    Update a task
-// @route   PUT /api/tasks/:id
+// @route   PUT /api/projects/:projectId/tasks/:id
 // @access  Private
 exports.updateTask = async (req, res) => {
     try {
-        const { id } = req.params;
+        const { id, projectId } = req.params;
         const { content, status, SprintId } = req.body;
-        const userId = req.user.id;
 
-        const task = await Task.findOne({ where: { id, UserId: userId } });
+        const task = await Task.findOne({ where: { id, ProjectId: projectId } });
 
         if (!task) {
             return res.status(404).json({ message: 'Task not found' });
@@ -92,21 +92,18 @@ exports.updateTask = async (req, res) => {
 };
 
 // @desc    Delete a task
-// @route   DELETE /api/tasks/:id
+// @route   DELETE /api/projects/:projectId/tasks/:id
 // @access  Private
 exports.deleteTask = async (req, res) => {
     try {
-        const { id } = req.params;
-        const userId = req.user.id;
-
-        const task = await Task.findOne({ where: { id, UserId: userId } });
+        const { id, projectId } = req.params;
+        const task = await Task.findOne({ where: { id, ProjectId: projectId } });
 
         if (!task) {
             return res.status(404).json({ message: 'Task not found' });
         }
 
         await task.destroy();
-
         res.status(204).send();
     } catch (error) {
         res.status(500).json({ message: 'Error deleting task', error: error.message });

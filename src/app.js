@@ -5,8 +5,7 @@ const sequelize = require('./config/database');
 
 // Import routes
 const authRoutes = require('./routes/authRoutes');
-const taskRoutes = require('./routes/taskRoutes');
-const sprintRoutes = require('./routes/sprintRoutes');
+const projectRoutes = require('./routes/projectRoutes');
 
 const app = express();
 
@@ -21,7 +20,6 @@ app.get('/', (req, res) => {
 
 // API routes
 app.use('/auth', authRoutes);
-app.use('/api/tasks', taskRoutes);
-app.use('/api/sprints', sprintRoutes);
+app.use('/api/projects', projectRoutes);
 
 module.exports = app;

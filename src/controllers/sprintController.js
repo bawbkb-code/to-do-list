@@ -2,29 +2,31 @@ const Sprint = require('../models/Sprint');
 const Task = require('../models/Task');
 
 // @desc    Create a new sprint
-// @route   POST /api/sprints
+// @route   POST /api/projects/:projectId/sprints
 // @access  Private
 exports.createSprint = async (req, res) => {
     try {
         const { name, startDate, endDate } = req.body;
+        const { projectId } = req.params;
 
         if (!name || !startDate || !endDate) {
             return res.status(400).json({ message: 'Please provide name, start date, and end date' });
         }
 
-        const sprint = await Sprint.create({ name, startDate, endDate });
+        const sprint = await Sprint.create({ name, startDate, endDate, ProjectId: projectId });
         res.status(201).json(sprint);
     } catch (error) {
         res.status(500).json({ message: 'Error creating sprint', error: error.message });
     }
 };
 
-// @desc    Get all sprints
-// @route   GET /api/sprints
+// @desc    Get all sprints for a project
+// @route   GET /api/projects/:projectId/sprints
 // @access  Private
 exports.getAllSprints = async (req, res) => {
     try {
-        const sprints = await Sprint.findAll({ include: Task });
+        const { projectId } = req.params;
+        const sprints = await Sprint.findAll({ where: { ProjectId: projectId }, include: Task });
         res.status(200).json(sprints);
     } catch (error) {
         res.status(500).json({ message: 'Error fetching sprints', error: error.message });
@@ -32,12 +34,12 @@ exports.getAllSprints = async (req, res) => {
 };
 
 // @desc    Get a single sprint
-// @route   GET /api/sprints/:id
+// @route   GET /api/projects/:projectId/sprints/:id
 // @access  Private
 exports.getSprintById = async (req, res) => {
     try {
-        const { id } = req.params;
-        const sprint = await Sprint.findByPk(id, { include: Task });
+        const { id, projectId } = req.params;
+        const sprint = await Sprint.findOne({ where: { id, ProjectId: projectId }, include: Task });
 
         if (!sprint) {
             return res.status(404).json({ message: 'Sprint not found' });
@@ -50,14 +52,14 @@ exports.getSprintById = async (req, res) => {
 };
 
 // @desc    Update a sprint
-// @route   PUT /api/sprints/:id
+// @route   PUT /api/projects/:projectId/sprints/:id
 // @access  Private
 exports.updateSprint = async (req, res) => {
     try {
-        const { id } = req.params;
+        const { id, projectId } = req.params;
         const { name, startDate, endDate } = req.body;
 
-        const sprint = await Sprint.findByPk(id);
+        const sprint = await Sprint.findOne({ where: { id, ProjectId: projectId } });
 
         if (!sprint) {
             return res.status(404).json({ message: 'Sprint not found' });
@@ -75,21 +77,18 @@ exports.updateSprint = async (req, res) => {
 };
 
 // @desc    Delete a sprint
-// @route   DELETE /api/sprints/:id
+// @route   DELETE /api/projects/:projectId/sprints/:id
 // @access  Private
 exports.deleteSprint = async (req, res) => {
     try {
-        const { id } = req.params;
-        const sprint = await Sprint.findByPk(id);
+        const { id, projectId } = req.params;
+        const sprint = await Sprint.findOne({ where: { id, ProjectId: projectId } });
 
         if (!sprint) {
             return res.status(404).json({ message: 'Sprint not found' });
         }
 
-        // What to do with tasks in the sprint? For now, we'll just delete the sprint.
-        // A better implementation might move them to the backlog.
         await sprint.destroy();
-
         res.status(204).send();
     } catch (error) {
         res.status(500).json({ message: 'Error deleting sprint', error: error.message });

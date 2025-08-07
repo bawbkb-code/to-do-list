@@ -1,5 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
+const Project = require('./Project');
 
 const Sprint = sequelize.define('Sprint', {
   name: {
@@ -15,5 +16,8 @@ const Sprint = sequelize.define('Sprint', {
     allowNull: false,
   },
 });
+
+Project.hasMany(Sprint);
+Sprint.belongsTo(Project);
 
 module.exports = Sprint;

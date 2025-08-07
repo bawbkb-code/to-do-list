@@ -1,17 +1,21 @@
 import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import { getAllTasks } from '../services/api';
 
 const BacklogPage = () => {
   const [backlogTasks, setBacklogTasks] = useState([]);
   const [error, setError] = useState('');
+  const { projectId } = useParams();
 
   useEffect(() => {
-    fetchBacklogTasks();
-  }, []);
+    if (projectId) {
+      fetchBacklogTasks();
+    }
+  }, [projectId]);
 
   const fetchBacklogTasks = async () => {
     try {
-      const { data } = await getAllTasks();
+      const { data } = await getAllTasks(projectId);
       const tasks = data.filter(task => !task.SprintId);
       setBacklogTasks(tasks);
     } catch (err) {
@@ -22,7 +26,7 @@ const BacklogPage = () => {
 
   return (
     <div>
-      <h2>Product Backlog</h2>
+      <h2>Product Backlog for Project {projectId}</h2>
       {error && <p style={{ color: 'red' }}>{error}</p>}
       <ul>
         {backlogTasks.map(task => (

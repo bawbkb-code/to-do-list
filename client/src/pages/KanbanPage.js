@@ -9,7 +9,7 @@ const KanbanPage = () => {
   const [tasks, setTasks] = useState([]);
   const [error, setError] = useState('');
   const navigate = useNavigate();
-  const { sprintId } = useParams();
+  const { projectId, sprintId } = useParams();
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -19,11 +19,11 @@ const KanbanPage = () => {
     } else {
       navigate('/login');
     }
-  }, [navigate, sprintId]);
+  }, [navigate, projectId, sprintId]);
 
   const fetchTasks = async () => {
     try {
-      const { data } = await getAllTasks(sprintId);
+      const { data } = await getAllTasks(projectId, sprintId);
       setTasks(data);
     } catch (err) {
       setError('Could not fetch tasks.');
@@ -80,7 +80,7 @@ const KanbanPage = () => {
     <DndContext onDragEnd={onDragEnd} collisionDetection={closestCorners}>
       <div>
         <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 20px' }}>
-          <h2>Kanban Board (Sprint {sprintId})</h2>
+          <h2>Kanban Board for Project {projectId} (Sprint {sprintId})</h2>
           <button onClick={handleLogout}>Logout</button>
         </div>
 

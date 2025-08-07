@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { DndContext, closestCorners } from '@dnd-kit/core';
 import { getAllSprints, createSprint, getAllTasks, updateTask } from '../services/api';
 import { useDraggable } from '@dnd-kit/core';
@@ -57,15 +57,18 @@ const SprintsPage = () => {
   const [newSprintName, setNewSprintName] = useState('');
   const [newSprintStart, setNewSprintStart] = useState('');
   const [newSprintEnd, setNewSprintEnd] = useState('');
+  const { projectId } = useParams();
 
   useEffect(() => {
-    fetchSprints();
-    fetchBacklogTasks();
-  }, []);
+    if (projectId) {
+      fetchSprints();
+      fetchBacklogTasks();
+    }
+  }, [projectId]);
 
   const fetchSprints = async () => {
     try {
-      const { data } = await getAllSprints();
+      const { data } = await getAllSprints(projectId);
       setSprints(data);
     } catch (err) {
       setError('Could not fetch sprints.');
@@ -74,7 +77,8 @@ const SprintsPage = () => {
 
   const fetchBacklogTasks = async () => {
     try {
-      const { data } = await getAllTasks();
+      // Need to update getAllTasks to filter by project
+      const { data } = await getAllTasks(projectId);
       setBacklogTasks(data.filter(task => !task.SprintId));
     } catch (err) {
       setError('Could not fetch backlog tasks.');
@@ -84,7 +88,7 @@ const SprintsPage = () => {
   const handleCreateSprint = async (e) => {
     e.preventDefault();
     try {
-      await createSprint({ name: newSprintName, startDate: newSprintStart, endDate: newSprintEnd });
+      await createSprint(projectId, { name: newSprintName, startDate: newSprintStart, endDate: newSprintEnd });
       setNewSprintName('');
       setNewSprintStart('');
       setNewSprintEnd('');
@@ -99,7 +103,6 @@ const SprintsPage = () => {
       const taskId = active.id;
       const sprintId = over.id;
 
-      // Optimistic update
       const task = backlogTasks.find(t => t.id === taskId);
       if (task) {
         setBacklogTasks(prev => prev.filter(t => t.id !== taskId));
@@ -107,11 +110,9 @@ const SprintsPage = () => {
 
       try {
         await updateTask(taskId, { SprintId: sprintId });
-        // Optionally, refetch sprints to see the task inside
         fetchSprints();
       } catch (error) {
         setError('Failed to assign task to sprint.');
-        // Revert UI on error
         if (task) {
           setBacklogTasks(prev => [...prev, task]);
         }
@@ -123,7 +124,7 @@ const SprintsPage = () => {
     <DndContext onDragEnd={onDragEnd} collisionDetection={closestCorners}>
       <div style={{ display: 'flex', justifyContent: 'space-between', padding: '20px' }}>
         <div style={{ width: '45%' }}>
-          <h2>Sprints</h2>
+          <h2>Sprints for Project {projectId}</h2>
           {error && <p style={{ color: 'red' }}>{error}</p>}
 
           <h3>Create New Sprint</h3>
@@ -134,7 +135,7 @@ const SprintsPage = () => {
           <h3>All Sprints</h3>
           {sprints.map(sprint => (
             <DroppableSprint key={sprint.id} sprint={sprint}>
-              <Link to={`/sprints/${sprint.id}/board`}>View Board</Link>
+              <Link to={`/projects/${projectId}/sprints/${sprint.id}/board`}>View Board</Link>
               <p>Drop tasks here</p>
               {sprint.Tasks && sprint.Tasks.map(task => (
                 <div key={task.id} style={{padding: '5px', margin: '2px 0', backgroundColor: '#e9e9e9'}}>{task.content}</div>
