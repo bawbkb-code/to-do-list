@@ -5,7 +5,7 @@ const Task = require('../models/Task');
 // @access  Private
 exports.createTask = async (req, res) => {
     try {
-        const { content, status } = req.body;
+        const { content, status, SprintId } = req.body;
         const userId = req.user.id; // This will come from the auth middleware
 
         if (!content) {
@@ -15,7 +15,8 @@ exports.createTask = async (req, res) => {
         const task = await Task.create({
             content,
             status,
-            UserId: userId
+            UserId: userId,
+            SprintId
         });
 
         res.status(201).json(task);
@@ -30,7 +31,13 @@ exports.createTask = async (req, res) => {
 exports.getAllTasks = async (req, res) => {
     try {
         const userId = req.user.id;
-        const tasks = await Task.findAll({ where: { UserId: userId } });
+        const whereClause = { UserId: userId };
+
+        if (req.query.sprintId) {
+            whereClause.SprintId = req.query.sprintId;
+        }
+
+        const tasks = await Task.findAll({ where: whereClause });
         res.status(200).json(tasks);
     } catch (error) {
         res.status(500).json({ message: 'Error fetching tasks', error: error.message });
@@ -62,7 +69,7 @@ exports.getTaskById = async (req, res) => {
 exports.updateTask = async (req, res) => {
     try {
         const { id } = req.params;
-        const { content, status } = req.body;
+        const { content, status, SprintId } = req.body;
         const userId = req.user.id;
 
         const task = await Task.findOne({ where: { id, UserId: userId } });
@@ -73,6 +80,9 @@ exports.updateTask = async (req, res) => {
 
         task.content = content || task.content;
         task.status = status || task.status;
+        if (SprintId !== undefined) {
+            task.SprintId = SprintId;
+        }
         await task.save();
 
         res.status(200).json(task);

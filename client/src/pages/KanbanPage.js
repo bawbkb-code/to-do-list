@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { DndContext, closestCorners } from '@dnd-kit/core';
-import { arrayMove } from '@dnd-kit/sortable';
 import { getAllTasks, setAuthToken, updateTask } from '../services/api';
 import KanbanBoard from '../components/KanbanBoard';
 import Column from '../components/Column';
@@ -10,6 +9,7 @@ const KanbanPage = () => {
   const [tasks, setTasks] = useState([]);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const { sprintId } = useParams();
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -19,11 +19,11 @@ const KanbanPage = () => {
     } else {
       navigate('/login');
     }
-  }, [navigate]);
+  }, [navigate, sprintId]);
 
   const fetchTasks = async () => {
     try {
-      const { data } = await getAllTasks();
+      const { data } = await getAllTasks(sprintId);
       setTasks(data);
     } catch (err) {
       setError('Could not fetch tasks.');
@@ -52,7 +52,6 @@ const KanbanPage = () => {
 
     const newStatus = over.id.toString();
 
-    // Optimistic UI update
     const updatedTasks = tasks.map(t =>
       t.id === activeId ? { ...t, status: newStatus } : t
     );
@@ -61,12 +60,10 @@ const KanbanPage = () => {
     try {
       await updateTask(activeId, { status: newStatus });
     } catch (error) {
-      // Revert on error
       setTasks(tasks);
       setError('Failed to update task status.');
     }
   };
-
 
   const tasksByStatus = tasks.reduce((acc, task) => {
     const { status } = task;
@@ -83,7 +80,7 @@ const KanbanPage = () => {
     <DndContext onDragEnd={onDragEnd} collisionDetection={closestCorners}>
       <div>
         <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 20px' }}>
-          <h2>Kanban Board</h2>
+          <h2>Kanban Board (Sprint {sprintId})</h2>
           <button onClick={handleLogout}>Logout</button>
         </div>
 

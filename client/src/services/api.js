@@ -21,9 +21,18 @@ export const login = (credentials) => api.post('/auth/login', credentials);
 
 // --- Tasks ---
 export const createTask = (taskData) => api.post('/api/tasks', taskData);
-export const getAllTasks = () => api.get('/api/tasks');
+export const getAllTasks = (sprintId) => {
+  if (sprintId) {
+    return api.get(`/api/tasks?sprintId=${sprintId}`);
+  }
+  return api.get('/api/tasks');
+};
 export const getTaskById = (id) => api.get(`/api/tasks/${id}`);
 export const updateTask = (id, taskData) => api.put(`/api/tasks/${id}`, taskData);
 export const deleteTask = (id) => api.delete(`/api/tasks/${id}`);
+
+// --- Sprints ---
+export const createSprint = (sprintData) => api.post('/api/sprints', sprintData);
+export const getAllSprints = () => api.get('/api/sprints');
 
 export default api;
