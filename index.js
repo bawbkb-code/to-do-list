@@ -1,54 +1,21 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const app = express();
+require('dotenv').config(); // Load environment variables from .env file
 
-const port = 8000;
+const app = require('./src/app');
+const sequelize = require('./src/config/database');
 
-let todos = [];
-let currentId = 1;
+const port = process.env.PORT || 8000;
 
-app.use(bodyParser.json());
+const startServer = async () => {
+  try {
+    await sequelize.sync(); // Sync all models
+    console.log('Database synchronized successfully.');
 
-app.get('/', (req, res) => {
-    res.send('Welcome to the Todo List App!');
-});
+    app.listen(port, () => {
+      console.log('Listening on port: ' + port);
+    });
+  } catch (error) {
+    console.error('Unable to synchronize the database:', error);
+  }
+};
 
-app.get('/todos', (req, res) => {
-    res.json(todos);
-});
-
-app.get('/todos/:id', (req, res) => {
-    const { id } = req.params;
-    const todo = todos.find(todo => todo.id === parseInt(id));
-    if (!todo) {
-        return res.status(404).json({ error: 'Todo not found' });
-    }
-    res.json(todo);
-});
-
-// จะรับข้อมูลเป็น json {"content":"..."} แบบนี้เท่านั้น
-app.post('/todos', (req, res) => {
-    const { content } = req.body;
-    if (!content) {
-        return res.status(400).json({ error: 'Content is required' });
-    }
-
-    const newTodo = {
-        id: currentId++,
-        content: content
-    };
-
-    todos.push(newTodo);
-    res.status(201).json(newTodo);
-});
-
-app.delete('/todos/:id', (req, res) => {
-    const { id } = req.params;
-    todos = todos.filter(todo => todo.id !== parseInt(id));
-    res.status(204).send();
-});
-
-
-app.listen(port, () => {
-    console.log('Listening on port: ' + port);
-});
+startServer();
