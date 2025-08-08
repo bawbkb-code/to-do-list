@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { register } from '../services/api';
+import styles from './LoginPage.module.css'; // Reusing login styles
 
 const RegisterPage = () => {
   const [username, setUsername] = useState('');
@@ -21,30 +22,33 @@ const RegisterPage = () => {
   };
 
   return (
-    <div>
-      <h2>Register</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Username</label>
-          <input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label>Password</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
-        {error && <p style={{ color: 'red' }}>{error}</p>}
-        <button type="submit">Register</button>
-      </form>
+    <div className={styles.container}>
+      <div className={styles.formWrapper}>
+        <h2>Register</h2>
+        <form onSubmit={handleSubmit}>
+          <div className={styles.formGroup}>
+            <label>Username</label>
+            <input
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+            />
+          </div>
+          <div className={styles.formGroup}>
+            <label>Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+          {error && <p className={styles.error}>{error}</p>}
+          <button type="submit" className={styles.button}>Register</button>
+        </form>
+        <Link to="/login" className={styles.link}>Already have an account? Login</Link>
+      </div>
     </div>
   );
 };

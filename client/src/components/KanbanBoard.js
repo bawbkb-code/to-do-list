@@ -1,9 +1,9 @@
 import React from 'react';
-import './KanbanBoard.css';
+import styles from './KanbanBoard.module.css';
 
 const KanbanBoard = ({ children }) => {
   return (
-    <div className="kanban-board">
+    <div className={styles.kanbanBoard}>
       {children}
     </div>
   );

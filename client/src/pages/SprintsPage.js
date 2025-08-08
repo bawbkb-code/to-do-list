@@ -5,6 +5,8 @@ import { getAllSprints, createSprint, getAllTasks, updateTask } from '../service
 import { useDraggable } from '@dnd-kit/core';
 import { useDroppable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
+import styles from './SprintsPage.module.css';
+import formStyles from './LoginPage.module.css';
 
 const DraggableTask = ({ task }) => {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
@@ -14,16 +16,10 @@ const DraggableTask = ({ task }) => {
 
   const style = {
     transform: CSS.Translate.toString(transform),
-    padding: '10px',
-    margin: '5px 0',
-    backgroundColor: 'white',
-    border: '1px solid #ccc',
-    borderRadius: '3px',
-    cursor: 'grab',
   };
 
   return (
-    <div ref={setNodeRef} style={style} {...listeners} {...attributes}>
+    <div ref={setNodeRef} style={style} {...listeners} {...attributes} className={styles.taskItem}>
       {task.content}
     </div>
   );
@@ -34,16 +30,8 @@ const DroppableSprint = ({ sprint, children }) => {
     id: sprint.id,
   });
 
-  const style = {
-    border: '1px solid #ddd',
-    borderRadius: '5px',
-    padding: '10px',
-    margin: '10px 0',
-    backgroundColor: '#f9f9f9',
-  };
-
   return (
-    <div ref={setNodeRef} style={style}>
+    <div ref={setNodeRef} className={styles.sprintItem}>
       <h4>{sprint.name}</h4>
       {children}
     </div>
@@ -77,7 +65,6 @@ const SprintsPage = () => {
 
   const fetchBacklogTasks = async () => {
     try {
-      // Need to update getAllTasks to filter by project
       const { data } = await getAllTasks(projectId);
       setBacklogTasks(data.filter(task => !task.SprintId));
     } catch (err) {
@@ -122,10 +109,10 @@ const SprintsPage = () => {
 
   return (
     <DndContext onDragEnd={onDragEnd} collisionDetection={closestCorners}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', padding: '20px' }}>
-        <div style={{ width: '45%' }}>
+      <div className={styles.container}>
+        <div className={styles.sprintsColumn}>
           <h2>Sprints for Project {projectId}</h2>
-          {error && <p style={{ color: 'red' }}>{error}</p>}
+          {error && <p className={formStyles.error}>{error}</p>}
 
           <h3>Create New Sprint</h3>
           <form onSubmit={handleCreateSprint}>
@@ -144,7 +131,7 @@ const SprintsPage = () => {
           ))}
         </div>
 
-        <div style={{ width: '45%' }}>
+        <div className={styles.backlogColumn}>
           <h3>Product Backlog</h3>
           {backlogTasks.map(task => (
             <DraggableTask key={task.id} task={task} />

@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getAllProjects, createProject } from '../services/api';
+import styles from './ProjectsPage.module.css';
+import formStyles from './LoginPage.module.css'; // Reusing form styles
 
 const ProjectsPage = () => {
   const [projects, setProjects] = useState([]);
@@ -36,27 +38,29 @@ const ProjectsPage = () => {
   };
 
   return (
-    <div>
+    <div className={styles.container}>
       <h2>Projects</h2>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
 
-      <h3>Create New Project</h3>
-      <form onSubmit={handleCreateProject}>
-        <div>
-          <label>Name:</label>
-          <input type="text" value={newProjectName} onChange={e => setNewProjectName(e.target.value)} required />
-        </div>
-        <div>
-          <label>Description:</label>
-          <textarea value={newProjectDescription} onChange={e => setNewProjectDescription(e.target.value)} />
-        </div>
-        <button type="submit">Create Project</button>
-      </form>
+      <div className={styles.formWrapper}>
+        <h3>Create New Project</h3>
+        <form onSubmit={handleCreateProject}>
+          <div className={formStyles.formGroup}>
+            <label>Name:</label>
+            <input type="text" value={newProjectName} onChange={e => setNewProjectName(e.target.value)} required className={formStyles.input} />
+          </div>
+          <div className={formStyles.formGroup}>
+            <label>Description:</label>
+            <textarea value={newProjectDescription} onChange={e => setNewProjectDescription(e.target.value)} className={formStyles.input} />
+          </div>
+          <button type="submit" className={formStyles.button}>Create Project</button>
+        </form>
+      </div>
 
       <h3>Your Projects</h3>
-      <ul>
+      {error && <p className={formStyles.error}>{error}</p>}
+      <ul className={styles.projectList}>
         {projects.map(project => (
-          <li key={project.id}>
+          <li key={project.id} className={styles.projectItem}>
             <Link to={`/projects/${project.id}/sprints`}>{project.name}</Link>
           </li>
         ))}

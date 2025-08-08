@@ -1,6 +1,7 @@
 import React from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import styles from './KanbanBoard.module.css'; // Reusing styles from KanbanBoard module
 
 const TaskCard = ({ task }) => {
   const {
@@ -22,7 +23,7 @@ const TaskCard = ({ task }) => {
       style={style}
       {...attributes}
       {...listeners}
-      className="task-card"
+      className={styles.taskCard}
     >
       <p>{task.content}</p>
     </div>

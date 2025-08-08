@@ -1,0 +1,36 @@
+.container {
+  padding: 20px;
+}
+
+.formWrapper {
+  background-color: var(--surface-color);
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 30px;
+}
+
+.formWrapper h3 {
+  margin-top: 0;
+}
+
+.projectList {
+  list-style: none;
+  padding: 0;
+}
+
+.projectItem {
+  background-color: var(--surface-color);
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  transition: transform 0.2s;
+}
+
+.projectItem:hover {
+  transform: translateY(-5px);
+}
+
+.projectItem a {
+  font-size: 1.2rem;
+  font-weight: 500;
+}
