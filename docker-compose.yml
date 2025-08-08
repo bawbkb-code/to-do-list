@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:14-alpine
+    container_name: scrum_db
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      POSTGRES_DB: ${POSTGRES_DB:-scrumapp}
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    container_name: scrum_backend
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    depends_on:
+      - db
+    ports:
+      - '8000:8000'
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-user}:${POSTGRES_PASSWORD:-password}@db:5432/${POSTGRES_DB:-scrumapp}
+      DB_SSL: 'false'
+
+  frontend:
+    container_name: scrum_frontend
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - '3000:80'
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
